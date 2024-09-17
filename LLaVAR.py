@@ -1,19 +1,18 @@
-# 需要首先安装 datasets 库
-# pip install datasets
-
 from datasets import load_dataset
 
 # 加载数据集
-dataset_name = "BAAI/CapsFusion-120M"
+ds = load_dataset("SALT-NLP/LLaVAR", cache_dir='/p/project1/westai0019/cache')
+print(ds)
 
-try:
-    # 尝试加载数据集
-    ds = load_dataset("SALT-NLP/LLaVAR", cache_dir='/p/project/westai0019/cache')
-    print("数据集加载成功！")
-    print(f"数据集共有 {len(ds)} 条记录")
+# 检查数据集的分割
+if "train" in ds:
+    train_data = ds['train']
+else:
+    print("数据集中没有 'train' 分割")
 
-    # 打印数据集的前几条数据
-    print(ds['train'][0:5])
-
-except Exception as e:
-    print(f"加载数据集时出现问题: {e}")
+# 访问 'validation' 分割
+if "validation" in ds:
+    validation_data = ds['validation']
+    print(f"Validation 数据集共有 {len(validation_data)} 条记录")
+else:
+    print("数据集中没有 'validation' 分割")
