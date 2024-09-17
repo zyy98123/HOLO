@@ -8,7 +8,8 @@ dataset_name = "BAAI/CapsFusion-120M"
 
 try:
     # 尝试加载数据集
-    ds = load_dataset("BAAI/CapsFusion-120M", cache_dir='/p/project/westai0019/cache')
+    from datasets import load_dataset
+    ds = load_dataset("BAAI/CapsFusion-120M", cache_dir='/p/scratch/westai0019/cache')
     print("数据集加载成功！")
     print(f"数据集共有 {len(ds)} 条记录")
 
