@@ -3,9 +3,6 @@
 
 from datasets import load_dataset
 
-# 加载数据集
-dataset_name = "BAAI/CapsFusion-120M"
-
 try:
     # 尝试加载数据集
     ds = load_dataset("HuggingFaceM4/WebSight", "v0.2", cache_dir='/p/project/westai0019/cache')
