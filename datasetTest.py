@@ -3,8 +3,6 @@
 
 from datasets import load_dataset
 
-# 加载数据集
-dataset_name = "BAAI/CapsFusion-120M"
 
 try:
     # 尝试加载数据集
