@@ -7,7 +7,7 @@ from datasets import load_dataset
 try:
     # 尝试加载数据集
     from datasets import load_dataset
-    ds = load_dataset("pixparse/cc3m-wds", cache_dir='/p/project1/westai0019/cc3m')
+    ds = load_dataset("xingyaoww/code-act", cache_dir='/p/project1/westai0019/fineTuningDataset')
     print("数据集加载成功！")
     print(f"数据集共有 {len(ds)} 条记录")
 
