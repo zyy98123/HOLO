@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("delen/vistext", cache_dir='/p/project1/westai0019/fineTuningDataset/Table')
+ds = load_dataset("Kamizuru00/diagram_image_to_text", cache_dir='/p/project1/westai0019/fineTuningDataset/OCR')
 print(ds)
 
 # 检查数据集的分割
