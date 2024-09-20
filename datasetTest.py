@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("lmms-lab/GQA", "challenge_all_images", cache_dir='/p/project1/westai0019/fineTuningDataset/GeneralVQA')
+ds = load_dataset("lmms-lab/GQA", "challenge_all_instructions", cache_dir='/p/project1/westai0019/fineTuningDataset/GeneralVQA')
 print(ds)
 
 # 检查数据集的分割
