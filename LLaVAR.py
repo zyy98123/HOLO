@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("lmms-lab/TextCaps", cache_dir='/p/project1/westai0019/fineTuningDataset/OCR')
+ds = load_dataset("howard-hou/OCR-VQA", cache_dir='/p/project1/westai0019/fineTuningDataset/OCR')
 print(ds)
 
 # 检查数据集的分割
