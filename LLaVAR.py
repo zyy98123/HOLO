@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("X2FD/LVIS-Instruct4V", cache_dir='/p/project1/westai0019/fineTuningDataset/detailedImageCaption')
+ds = load_dataset("Lin-Chen/ShareGPT4V", "ShareGPT4V", cache_dir='/p/project1/westai0019/fineTuningDataset/detailedImageCaption')
 print(ds)
 
 # 检查数据集的分割
