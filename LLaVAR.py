@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("SALT-NLP/LLaVAR", cache_dir='/p/project1/westai0019/cache')
+ds = load_dataset("xingyaoww/code-act", cache_dir='/p/project1/westai0019/fineTuningDataset')
 print(ds)
 
 # 检查数据集的分割
