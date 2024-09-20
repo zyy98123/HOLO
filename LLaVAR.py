@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("cambridgeltl/vsr_zeroshot", cache_dir='/p/project1/westai0019/fineTuningDataset/detailedImageCaption')
+ds = load_dataset("derek-thomas/ScienceQA", cache_dir='/p/project1/westai0019/fineTuningDataset/scientificDocument')
 print(ds)
 
 # 检查数据集的分割
