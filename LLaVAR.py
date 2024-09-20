@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("openbmb/UltraInteract_sft", cache_dir='/p/project1/westai0019/fineTuningDataset/language_only')
+ds = load_dataset("HuggingFaceH4/ultrachat_200k", cache_dir='/p/project1/westai0019/fineTuningDataset/language_only')
 print(ds)
 
 # 检查数据集的分割
