@@ -216,9 +216,10 @@ else:
 
 GeneralVQA_dataset = [("neuralcatcher/hateful_memes", None),
                       ("ruanchaves/visual7w-gpt", None),
-                      "lmms-lab/GQA", "challenge_all_images",
-                      "lmms-lab/GQA", "challenge_all_instructions",
-                      "lmms-lab/GQA", "challenge_balanced_images"]
+                      ("lmms-lab/GQA", "challenge_all_images"),
+                      ("lmms-lab/GQA", "challenge_all_instructions"),
+                      ("lmms-lab/GQA", "challenge_balanced_images")]
+
 for dataset_name, version in GeneralVQA_dataset:
     if version:
         ds = load_dataset(dataset_name, version, cache_dir=GeneralVQA_dir)
