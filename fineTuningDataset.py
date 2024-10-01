@@ -118,7 +118,7 @@ else:
 os.system(f"wget \"https://iconqa2021.s3.us-west-1.amazonaws.com/iconqa_data.zip\" -P '{table_dir}'")
 print(f"Downloaded {url.split('/')[-1]} to {table_dir}")
 
-os.system(f"wget '{"https://drive.google.com/file/d/1iKH2lTi1-QxtNUVRxTUWFvUvRHq6HAsZ/view?usp=sharing"}' -P '{table_dir}'")
+os.system(f"wget \"https://drive.google.com/file/d/1iKH2lTi1-QxtNUVRxTUWFvUvRHq6HAsZ/view?usp=sharing\" -P '{table_dir}'")
 print(f"Downloaded {url.split('/')[-1]} to {table_dir}")
 
 #5.2 通过 git clone 下载数据集，数据集位于repository的data/tabmwp
@@ -253,10 +253,10 @@ os.system(AOK_wget_command)
 print(f"Downloaded {AOKVQAurl.split('/')[-1]} to {GeneralVQA_dir}")
 
 #7.3 下载TallyQA 
-os.system(f"wget '{"https://github.com/manoja328/tallyqa/blob/master/tallyqa.zip?raw=true"}' -P '{GeneralVQA_dir}'")
+os.system(f"wget \"https://github.com/manoja328/tallyqa/blob/master/tallyqa.zip?raw=true\" -P '{GeneralVQA_dir}'")
 
 #7.4 下载COCO-QA
-os.system(f"wget '{"http://www.cs.toronto.edu/~mren/imageqa/data/cocoqa/cocoqa-2015-05-17.zip"}' -P '{GeneralVQA_dir}'")
+os.system(f"wget \"http://www.cs.toronto.edu/~mren/imageqa/data/cocoqa/cocoqa-2015-05-17.zip\" -P '{GeneralVQA_dir}'")
 
 #7.5 下载VQAV2
 VQAV2_dir = os.path.join(GeneralVQA_dir, "VQAV2")
@@ -278,7 +278,7 @@ VQAV2_urls = ["https://s3.amazonaws.com/cvmlp/vqa/mscoco/vqa/v2_Annotations_Trai
               "https://s3.amazonaws.com/cvmlp/vqa/mscoco/vqa/v2_Complementary_Pairs_Val_mscoco.zip"]
 
 for url in VQAV2_urls:
-    wget_command = f"wget '{url}' -P '{VQAV2_urls}'"
+    wget_command = f"wget \"{url}\" -P '{VQAV2_dir}'"
     os.system(wget_command)
     print(f"Downloaded {url.split('/')[-1]} to {VQAV2_urls}")
 
