@@ -115,7 +115,7 @@ else:
     print(f"Directory '{table_dir}' already exists.")
 
 #5.1 IconQA下载
-os.system(f"wget '{"https://iconqa2021.s3.us-west-1.amazonaws.com/iconqa_data.zip"}' -P '{table_dir}'")
+os.system(f"wget \"https://iconqa2021.s3.us-west-1.amazonaws.com/iconqa_data.zip\" -P '{table_dir}'")
 print(f"Downloaded {url.split('/')[-1]} to {table_dir}")
 
 os.system(f"wget '{"https://drive.google.com/file/d/1iKH2lTi1-QxtNUVRxTUWFvUvRHq6HAsZ/view?usp=sharing"}' -P '{table_dir}'")
