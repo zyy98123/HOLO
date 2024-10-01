@@ -55,7 +55,7 @@ for dataset_name, version in detailed_image_caption_dir_dataset:
 VSR_url = "https://github.com/cambridgeltl/visual-spatial-reasoning.git"
 try:
     # 执行 git clone 命令，克隆到当前目录
-    subprocess.run(["git", "clone", VSR_url], check=True)
+    subprocess.run(["git", "clone", VSR_url, detailed_image_caption_dir], check=True)
     print(f"Successfully cloned {VSR_url}")
 except subprocess.CalledProcessError as e:
     print(f"Error occurred while cloning: {e}")
@@ -124,14 +124,14 @@ print(f"Downloaded {url.split('/')[-1]} to {table_dir}")
 #5.2 通过 git clone 下载数据集，数据集位于repository的data/tabmwp
 tabmwp_url = "https://github.com/lupantech/PromptPG.git"
 try:
-    subprocess.run(["git", "clone", tabmwp_url], check=True)
+    subprocess.run(["git", "clone", tabmwp_url, table_dir], check=True)
     print(f"Successfully cloned {tabmwp_url}")
 except subprocess.CalledProcessError as e:
     print(f"Error occurred while cloning: {e}")
 
 chart2text_url = "https://github.com/JasonObeid/Chart2Text.git"
 try:
-    subprocess.run(["git", "clone", chart2text_url], check=True)
+    subprocess.run(["git", "clone", chart2text_url, table_dir], check=True)
     print(f"Successfully cloned {chart2text_url}")
 except subprocess.CalledProcessError as e:
     print(f"Error occurred while cloning: {e}")
