@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("wendlerc/RenderedText", cache_dir='/p/project1/westai0019/fineTuningDataset/OCR')
+ds = load_dataset("Lin-Chen/MMStar", cache_dir='/p/scratch/westai0019/metrics')
 print(ds)
 
 # 检查数据集的分割

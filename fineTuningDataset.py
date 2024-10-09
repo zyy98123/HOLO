@@ -148,7 +148,7 @@ for dataset_name, version in table_dir_dataset:
         print(f"Dataset {dataset_name} downloaded to {table_dir}.")
 
 #6 创建OCR_dir
-OCR_dir = os.path.join(dataset_dir, "Table")
+OCR_dir = os.path.join(dataset_dir, "OCR")
 if not os.path.exists(OCR_dir):
     os.makedirs(OCR_dir)
     print(f"Directory '{OCR_dir}' created.")
