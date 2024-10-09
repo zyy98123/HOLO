@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # 加载数据集
-ds = load_dataset("AI4Math/MathVista", cache_dir='/p/scratch/westai0019/metrics')
+ds = load_dataset("lmms-lab/ai2d", cache_dir='/p/scratch/westai0019/metrics')
 print(ds)
 
 # 检查数据集的分割
