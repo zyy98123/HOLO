@@ -23,7 +23,9 @@ inputs = tokenizer(text_input, return_tensors="pt")
 
 # 如果模型接受图像输入（需要看模型的要求），则输入图像
 # 这里假设模型是视觉语言模型，需要组合图像和文本作为输入
-outputs = model.generate(**inputs)
+outputs = model.generate(**inputs, max_new_tokens=1000)
+# 或者，如果你想设置更高的总长度
+# outputs = model.generate(**inputs, max_length=100)
 
 # Step 5: 解码输出
 output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
