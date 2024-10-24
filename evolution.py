@@ -15,11 +15,11 @@ image = Image.open(requests.get(image_url, stream=True).raw)
 # 这里会依赖模型是否需要专门的图像预处理代码
 
 # Step 3: 准备推理的文本输入（如果有）
-text_input = "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
+prompt = "The image shows a suitcase and a book. Which option describes the object relationship in the image correctly? Choose from the following options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book. Please select the correct answer."
 
 # Step 4: 组合输入并进行推理
 # 假设模型接受图像和文本的联合输入
-inputs = tokenizer(text_input, return_tensors="pt")
+inputs = tokenizer(prompt, return_tensors="pt")
 
 # 如果模型接受图像输入（需要看模型的要求），则输入图像
 # 这里假设模型是视觉语言模型，需要组合图像和文本作为输入
