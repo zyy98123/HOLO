@@ -127,6 +127,6 @@ if __name__ == "__main__":
 
     inputs = [
         img_patches,
-        "This is a"
+        "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
     ]
     run_inference_and_print_outputs(model, tokenizer, inputs, DEVICE)
