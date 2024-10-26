@@ -93,6 +93,8 @@ def prepare_inputs(inputs: list, device: str):
             tokens.extend([B_INST] + text_tokens + [E_INST])
             attention_masks.extend([1] * (len([B_INST]) + len(text_tokens) + len([E_INST])))
     
+    tokens = [tok if isinstance(tok, int) else tokenizer.convert_tokens_to_ids(tok) for tok in tokens]
+    
     return (
         torch.tensor(tokens, dtype=torch.long).to(device),
         torch.tensor(attention_masks, dtype=torch.long).to(device),
