@@ -75,7 +75,7 @@ if __name__ == "__main__":
     model, tokenizer = load_model_and_tokenizer(DEVICE)
 
     img_patches = load_image_as_patches("./testIMG.png")
-    text_input = "This is a"
+    text_input = "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
     inputs = [img_patches, text_input]
 
     run_inference_and_print_outputs(model, tokenizer, inputs, DEVICE)
