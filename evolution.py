@@ -1,81 +1,148 @@
 import torch
 import numpy as np
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
+from transformers import LlamaTokenizer, GenerationConfig
 
-# 导入图像处理工具
+# Add project root to sys path to import image_utils
+import os
+import sys
+
+current_dir = os.getcwd()
+project_root = os.path.dirname(os.path.dirname(current_dir))
+sys.path.insert(0, project_root)
+
 from image_utils import (
     load_image_to_base64,
-    convert_image_base64_to_patches
+    download_image_to_base64,
+    load_base64_to_PILImage,
+    convert_image_base64_to_patches,
+    visualize_patches
 )
 
-# 设置模型路径并从Hugging Face加载模型
-def load_model_and_tokenizer(device):
-    tokenizer = AutoTokenizer.from_pretrained("YangyiYY/SOLO-7B")
-    model = AutoModelForCausalLM.from_pretrained("YangyiYY/SOLO-7B", torch_dtype=torch.bfloat16)
-    model = model.to(device)
-    return model, tokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# 准备输入数据，包括文本和视觉输入
-def prepare_inputs(inputs: list, device: str, tokenizer):
-    B_INST, E_INST = tokenizer.convert_tokens_to_ids("<INST>"), tokenizer.convert_tokens_to_ids("</INST>")
+tokenizer = AutoTokenizer.from_pretrained("YangyiYY/SOLO-7B")
+model = AutoModelForCausalLM.from_pretrained("YangyiYY/SOLO-7B")
+
+DEVICE = "cuda:0"
+model = model.to(DEVICE)
+
+B_INST, E_INST = "[INST]", "[/INST]"
+
+def prepare_inputs(inputs: list, device: str):
+    NON_VISION_TOKEN = -1
+    
     tokens = []
     attention_masks = []
+    vision_patch_indices = []
     vision_patches = []
-
+    
     for i in inputs:
         if isinstance(i, torch.Tensor):
-            # 确保图像patch的形状符合模型的要求
-            patches = i.view(-1, i.shape[-1]) if len(i.shape) == 3 else i  # 展平最后两维，确保兼容性
-            vision_patches.append(patches)
-            img_tokens = [tokenizer.convert_tokens_to_ids("<vision>")] * patches.shape[0]
-            tokens.extend(img_tokens)
-            attention_masks.extend([1] * len(img_tokens))
-        else:
-            # 文本输入处理
-            text_tokens = tokenizer(i, return_tensors='pt').input_ids.squeeze(0).tolist()
-            tokens.extend([B_INST] + text_tokens + [E_INST])
-            attention_masks.extend([1] * len([B_INST] + text_tokens + [E_INST]))
+            # this is patches
+            patches = i
+            n_rows, n_cols = patches.shape[:2]
+            n_patches = n_rows * n_cols
+            patches = patches.view(n_patches, -1)
+            
+            img_tokens = ["<vision>"]
+            cur_patch_indices = [NON_VISION_TOKEN]
+            for row_idx in range(n_rows):
+                for col_idx in range(n_cols):
+                    if row_idx != 0 and col_idx == 0: # when new row starts
+                        img_tokens.append(f"<vrow_sep>")
+                        cur_patch_indices.append(NON_VISION_TOKEN)
+                    img_tokens.append(f"<vpatch>")
+                    cur_patch_indices.append(len(img_tokens) - 1)
+            
+            cur_tokens = torch.Tensor(tokenizer.convert_tokens_to_ids(img_tokens))
+            cur_attention_mask = [1] * len(cur_tokens)
+            
+            tokens.extend(cur_tokens)
+            attention_masks.extend(cur_attention_mask)
+            vision_patch_indices.extend(cur_patch_indices)
+            vision_patches.extend(patches.numpy().astype(np.float16))
 
-    tokens_tensor = torch.tensor(tokens, dtype=torch.long).to(device)
-    attention_masks_tensor = torch.tensor(attention_masks, dtype=torch.long).to(device)
+        elif isinstance(i, str):
+            i = tokenizer.bos_token + f"{B_INST} {i.strip()} {E_INST}"
+            _tokenized = tokenizer(i, return_tensors="pt", add_special_tokens=False)
+            cur_tokens = _tokenized["input_ids"].squeeze(0)
+            cur_attention_mask = _tokenized["attention_mask"].squeeze(0)
+            print(f"cur_tokens: {cur_tokens}")
+            print(f"cur_attention_mask: {cur_attention_mask}")
 
-    if vision_patches:
-        vision_patches_tensor = torch.cat(vision_patches, dim=0).to(device)
+            tokens.extend(cur_tokens)
+            attention_masks.extend(cur_attention_mask)
+            vision_patch_indices.extend([NON_VISION_TOKEN] * len(cur_tokens))
+
+    tokens = torch.Tensor(tokens).long()
+    attention_masks = torch.Tensor(attention_masks).long()
+    if len(vision_patches) > 0:
+        vision_patches = torch.Tensor(vision_patches).bfloat16()
     else:
-        vision_patches_tensor = None
+        vision_patches = None
+    vision_patch_indices = torch.Tensor(vision_patch_indices).long()
 
-    return tokens_tensor, attention_masks_tensor, vision_patches_tensor
+    # move to device
+    tokens = tokens.to(device)
+    attention_masks = attention_masks.to(device)
+    vision_patch_indices = vision_patch_indices.to(device)
+    if vision_patches is not None:
+        vision_patches = vision_patches.to(device)
 
-# 加载和处理本地图像
-def load_image_as_patches(image_path):
-    img_base64 = load_image_to_base64(image_path)
-    img_patches = convert_image_base64_to_patches(img_base64)
-    return img_patches
+    return tokens, attention_masks, vision_patches, vision_patch_indices
 
-# 运行推理函数
-def run_inference_and_print_outputs(model, tokenizer, inputs, device, do_sample=False, top_p=0.95, max_new_tokens=30):
-    tokens, attention_masks, vision_patches = prepare_inputs(inputs, device=device, tokenizer=tokenizer)
+def visualize_outputs(inputs, tokens, outputs):
+    for idx, s in enumerate(inputs):
+        if isinstance(s, str):
+            if idx == len(inputs) - 1:
+                print(s, end=" [")
+                print(tokenizer.decode(outputs[0, len(tokens):], skip_special_tokens=True) + "]")
+            else:
+                print(s)
+        else:
+            visualize_patches(s, figsize=(4, 4))
+
+def run_inference_and_print_outputs(
+    inputs,
+    do_sample=False,
+    top_p=0.95,
+    max_new_tokens=30,
+):
+    tokens, attention_masks, vision_patches, vision_patch_indices = prepare_inputs(inputs, device=DEVICE)
     with torch.no_grad():
         outputs = model.generate(
             input_ids=tokens.unsqueeze(0),
             attention_mask=attention_masks.unsqueeze(0),
+            vision_patches=vision_patches,
+            vision_patch_indices=vision_patch_indices.unsqueeze(0),
             generation_config=GenerationConfig(
                 do_sample=do_sample,
-                top_p=top_p if do_sample else None,
+                top_p=top_p,
                 max_new_tokens=max_new_tokens,
+                pad_token_id=tokenizer.eos_token_id,
                 suppress_tokens=[i for i in range(32000, len(tokenizer))],
             ),
         )
-    # 简单打印模型生成的输出
-    print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    visualize_outputs(inputs, tokens, outputs)
 
-# 主程序
-if __name__ == "__main__":
-    DEVICE = "cuda:0"
-    model, tokenizer = load_model_and_tokenizer(DEVICE)
+img_base64 = load_image_to_base64(f"{project_root}/testIMG.png")
+img_patches = convert_image_base64_to_patches(img_base64)
+print(f"patch shape: {img_patches.shape}")
+visualize_patches(img_patches)
 
-    img_patches = load_image_as_patches("./testIMG.png")
-    text_input = "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
-    inputs = [img_patches, text_input]
+inputs = [
+    img_patches,
+    "This is a"
+]
+run_inference_and_print_outputs(inputs)
 
-    run_inference_and_print_outputs(model, tokenizer, inputs, DEVICE)
+fig1_img_base64 = load_image_to_base64(f"{project_root}/testIMG.png")
+fig1_img_patches = convert_image_base64_to_patches(fig1_img_base64)
+print(f"patch shape: {fig1_img_patches.shape}")
+visualize_patches(fig1_img_patches)
+
+inputs = [
+    fig1_img_patches,
+    "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
+]
+run_inference_and_print_outputs(inputs)
