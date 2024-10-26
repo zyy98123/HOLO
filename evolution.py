@@ -1,4 +1,3 @@
-
 import torch
 import numpy as np
 from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
@@ -39,7 +38,7 @@ def convert_image_base64_to_patches(base64_str, patch_size=32):
         for col in range(n_cols):
             patch = image.crop((col * patch_size, row * patch_size, (col + 1) * patch_size, (row + 1) * patch_size))
             patches.append(np.array(patch).flatten())
-    return torch.tensor(patches).view(n_rows, n_cols, -1)
+    return torch.tensor(np.array(patches)).view(n_rows, n_cols, -1)
 
 def visualize_patches(patches, figsize=(8, 8)):
     """
@@ -88,10 +87,17 @@ def prepare_inputs(inputs: list, device: str):
             vision_patch_indices.extend(cur_patch_indices)
             vision_patches.append(patches)
         else:
-            tokens.extend(["[INST]", i, "[/INST]"])
-            attention_masks.extend([1] * (len(tokens) - len(attention_masks)))
+            # 将文本token化，而不是直接加入tokens列表中
+            text_tokens = tokenizer(i, return_tensors='pt').input_ids.squeeze(0).tolist()
+            tokens.extend([B_INST] + text_tokens + [E_INST])
+            attention_masks.extend([1] * len(text_tokens))
     
-    return torch.tensor(tokens).to(device), torch.tensor(attention_masks).to(device), torch.cat(vision_patches, dim=0).to(device), torch.tensor(vision_patch_indices).to(device)
+    return (
+        torch.tensor(tokens, dtype=torch.long).to(device),
+        torch.tensor(attention_masks, dtype=torch.long).to(device),
+        torch.cat(vision_patches, dim=0).to(device) if vision_patches else None,
+        torch.tensor(vision_patch_indices, dtype=torch.long).to(device) if vision_patch_indices else None
+    )
 
 # 加载和处理本地图像
 def load_image_as_patches(image_path):
@@ -107,7 +113,7 @@ def run_inference_and_print_outputs(model, tokenizer, inputs, device, do_sample=
             input_ids=tokens.unsqueeze(0),
             attention_mask=attention_masks.unsqueeze(0),
             vision_patches=vision_patches,
-            vision_patch_indices=vision_patch_indices.unsqueeze(0),
+            vision_patch_indices=vision_patch_indices.unsqueeze(0) if vision_patch_indices is not None else None,
             generation_config=GenerationConfig(
                 do_sample=do_sample,
                 top_p=top_p,
