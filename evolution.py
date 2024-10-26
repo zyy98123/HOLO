@@ -79,7 +79,7 @@ def run_inference_and_print_outputs(model, tokenizer, inputs, device, do_sample=
 # 主程序
 if __name__ == "__main__":
     DEVICE = "cuda:0"
-    IMAGE_PATH = "path/to/your/image.jpg"
+    IMAGE_PATH = "./testIMG.png"
 
     model, tokenizer = load_model_and_tokenizer(DEVICE)
     img_patches = load_image_as_patches(IMAGE_PATH)
