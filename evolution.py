@@ -24,22 +24,27 @@ def prepare_inputs(inputs: list, device: str, tokenizer):
 
     for i in inputs:
         if isinstance(i, torch.Tensor):
-            # 图像patch处理
-            patches = i
+            # 确保图像patch的形状符合模型的要求
+            patches = i.view(-1, i.shape[-1]) if len(i.shape) == 3 else i  # 展平最后两维，确保兼容性
             vision_patches.append(patches)
-            img_tokens = [tokenizer.convert_tokens_to_ids("<vision>")]
+            img_tokens = [tokenizer.convert_tokens_to_ids("<vision>")] * patches.shape[0]
             tokens.extend(img_tokens)
+            attention_masks.extend([1] * len(img_tokens))
         else:
             # 文本输入处理
             text_tokens = tokenizer(i, return_tensors='pt').input_ids.squeeze(0).tolist()
             tokens.extend([B_INST] + text_tokens + [E_INST])
             attention_masks.extend([1] * len([B_INST] + text_tokens + [E_INST]))
 
-    return (
-        torch.tensor(tokens, dtype=torch.long).to(device),
-        torch.tensor(attention_masks, dtype=torch.long).to(device),
-        torch.cat(vision_patches, dim=0).to(device) if vision_patches else None
-    )
+    tokens_tensor = torch.tensor(tokens, dtype=torch.long).to(device)
+    attention_masks_tensor = torch.tensor(attention_masks, dtype=torch.long).to(device)
+
+    if vision_patches:
+        vision_patches_tensor = torch.cat(vision_patches, dim=0).to(device)
+    else:
+        vision_patches_tensor = None
+
+    return tokens_tensor, attention_masks_tensor, vision_patches_tensor
 
 # 加载和处理本地图像
 def load_image_as_patches(image_path):
