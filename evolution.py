@@ -62,6 +62,7 @@ def load_model_and_tokenizer(device):
 # 准备输入数据
 def prepare_inputs(inputs: list, device: str):
     NON_VISION_TOKEN = -1
+    B_INST, E_INST = "<INST>", "</INST>"
     tokens = []
     attention_masks = []
     vision_patch_indices = []
@@ -90,7 +91,7 @@ def prepare_inputs(inputs: list, device: str):
             # 将文本token化，而不是直接加入tokens列表中
             text_tokens = tokenizer(i, return_tensors='pt').input_ids.squeeze(0).tolist()
             tokens.extend([B_INST] + text_tokens + [E_INST])
-            attention_masks.extend([1] * len(text_tokens))
+            attention_masks.extend([1] * (len([B_INST]) + len(text_tokens) + len([E_INST])))
     
     return (
         torch.tensor(tokens, dtype=torch.long).to(device),
@@ -133,6 +134,6 @@ if __name__ == "__main__":
 
     inputs = [
         img_patches,
-        "Which option describe the object relationship in the image correctly? Options: A: The suitcase is on the book., B: The suitcase is beneath the cat., C: The suitcase is beneath the bed., D: The suitcase is beneath the book."
+        "This is a"
     ]
     run_inference_and_print_outputs(model, tokenizer, inputs, DEVICE)
