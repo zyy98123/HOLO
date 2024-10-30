@@ -1,8 +1,8 @@
 import os
 import torch
 from datasets import load_dataset
-from vlmevalkit import evaluate
-from vlmevalkit.models import register_model
+from vlmeval import evaluate
+from vlmeval.models import register_model
 from solo_adapter import SOLOEvalAdapter
 import logging
 from datetime import datetime
